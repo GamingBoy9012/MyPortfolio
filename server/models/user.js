@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 
@@ -12,8 +11,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
         unique: 'Email already exists',
-        match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+        match: [/.+@.+\..+/, 'Please fill a valid email address'],
         required: 'Email is required'
+    },
+    role: {
+        type: String,
+        default: 'user'
     },
     created: {
         type: Date,

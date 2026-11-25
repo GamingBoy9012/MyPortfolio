@@ -4,48 +4,34 @@ const jwt = require('jsonwebtoken');
 
 exports.signin = async (req, res, next) => {
     try {
-        const user = await User.findOne({
-            email: req.body.email
-        });
+        const user = await User.findOne({ email: req.body.email });
 
-        if (!user) {
+        if (!user || !user.authenticate(req.body.password)) {
             return res.status(401).json({
-                error: 'User not found'
-            });
-        }
-
-        if (!user.authenticate(req.body.password)) {
-            return res.status(401).json({
-                error: 'Email and password do not match'
+                error: 'Incorrect email or password.'
             });
         }
 
         const token = jwt.sign(
-            { _id: user._id },
-            config.jwtSecret
+            { _id: String(user._id), role: user.role },
+            config.jwtSecret,
+            { expiresIn: '24h' }
         );
 
-        res.cookie('t', token, {
-            expires: new Date(Date.now() + 9999)
-        });
-
-        return res.json({
+        res.json({
             token,
             user: {
                 _id: user._id,
                 name: user.name,
-                email: user.email
+                email: user.email,
+                role: user.role
             }
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
 
 exports.signout = (req, res) => {
-    res.clearCookie('t');
-
-    return res.json({
-        message: 'signed out'
-    });
+    res.json({ message: 'Signed out successfully.' });
 };

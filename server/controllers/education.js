@@ -1,82 +1,60 @@
-
 const Education = require('../models/education');
 
-// Get all qualifications
-exports.getAllEducations = async (req, res) => {
+exports.getAllEducations = async (req, res, next) => {
     try {
-        const educations = await Education.find();
-        res.json(educations);
+        res.json(await Education.find().sort({ _id: -1 }));
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Get qualification by ID
-exports.getEducationById = async (req, res) => {
+exports.getEducationById = async (req, res, next) => {
     try {
         const education = await Education.findById(req.params.id);
-
-        if (!education) {
-            return res.status(404).json({ message: 'Qualification not found' });
-        }
-
+        if (!education) return res.status(404).json({ message: 'Qualification not found.' });
         res.json(education);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Add new qualification
-exports.addEducation = async (req, res) => {
+exports.addEducation = async (req, res, next) => {
     try {
         const education = new Education(req.body);
         await education.save();
         res.status(201).json(education);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 
-// Update qualification
-exports.updateEducation = async (req, res) => {
+exports.updateEducation = async (req, res, next) => {
     try {
         const education = await Education.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
+            req.params.id, req.body, { new: true, runValidators: true }
         );
-
-        if (!education) {
-            return res.status(404).json({ message: 'Qualification not found' });
-        }
-
+        if (!education) return res.status(404).json({ message: 'Qualification not found.' });
         res.json(education);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 
-// Delete qualification by ID
-exports.deleteEducation = async (req, res) => {
+exports.deleteEducation = async (req, res, next) => {
     try {
         const education = await Education.findByIdAndDelete(req.params.id);
-
-        if (!education) {
-            return res.status(404).json({ message: 'Qualification not found' });
-        }
-
-        res.json({ message: 'Qualification deleted successfully' });
+        if (!education) return res.status(404).json({ message: 'Qualification not found.' });
+        res.json({ message: 'Qualification deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Delete all qualifications
-exports.deleteAllEducations = async (req, res) => {
+exports.deleteAllEducations = async (req, res, next) => {
     try {
-        await Education.deleteMany();
-        res.json({ message: 'All qualifications deleted successfully' });
+        await Education.deleteMany({});
+        res.json({ message: 'All qualifications deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };

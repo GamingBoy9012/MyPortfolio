@@ -1,4 +1,13 @@
 {
+  "name": "my-portfolio-assignment-3",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "start": "node server.js",
+    "seed:admin": "node server/seedAdmin.js",
+    "seed:portfolio": "node server/seedPortfolio.js"
+  },
   "dependencies": {
     "dotenv": "^18.0.9",
     "express": "^5.3.0",

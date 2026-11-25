@@ -1,82 +1,69 @@
-
 const Contact = require('../models/contact');
 
-// Get all contacts
-exports.getAllContacts = async (req, res) => {
+exports.getAllContacts = async (req, res, next) => {
     try {
-        const contacts = await Contact.find();
-        res.json(contacts);
+        res.json(await Contact.find().sort({ _id: -1 }));
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Get contact by ID
-exports.getContactById = async (req, res) => {
+exports.getContactById = async (req, res, next) => {
     try {
         const contact = await Contact.findById(req.params.id);
-
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact not found' });
-        }
-
+        if (!contact) return res.status(404).json({ message: 'Contact not found.' });
         res.json(contact);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Add new contact
-exports.addContact = async (req, res) => {
+// Visitors can submit a contact message without creating an account.
+exports.addContact = async (req, res, next) => {
     try {
-        const contact = new Contact(req.body);
+        const contact = new Contact({
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            contactNumber: req.body.contactNumber,
+            email: req.body.email,
+            message: req.body.message
+        });
+
         await contact.save();
         res.status(201).json(contact);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 
-// Update contact
-exports.updateContact = async (req, res) => {
+exports.updateContact = async (req, res, next) => {
     try {
         const contact = await Contact.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
+            req.params.id, req.body, { new: true, runValidators: true }
         );
 
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact not found' });
-        }
-
+        if (!contact) return res.status(404).json({ message: 'Contact not found.' });
         res.json(contact);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };
 
-// Delete contact by ID
-exports.deleteContact = async (req, res) => {
+exports.deleteContact = async (req, res, next) => {
     try {
         const contact = await Contact.findByIdAndDelete(req.params.id);
-
-        if (!contact) {
-            return res.status(404).json({ message: 'Contact not found' });
-        }
-
-        res.json({ message: 'Contact deleted successfully' });
+        if (!contact) return res.status(404).json({ message: 'Contact not found.' });
+        res.json({ message: 'Contact deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };
 
-// Delete all contacts
-exports.deleteAllContacts = async (req, res) => {
+exports.deleteAllContacts = async (req, res, next) => {
     try {
-        await Contact.deleteMany();
-        res.json({ message: 'All contacts deleted successfully' });
+        await Contact.deleteMany({});
+        res.json({ message: 'All contacts deleted successfully.' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        next(error);
     }
 };

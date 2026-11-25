@@ -1,24 +1,14 @@
 const express = require('express');
+const educationController = require('../controllers/education');
+const auth = require('../helpers/auth');
+
 const router = express.Router();
 
-const educationController = require('../controllers/education');
-
-// GET all qualifications
 router.get('/', educationController.getAllEducations);
-
-// GET qualification by ID
 router.get('/:id', educationController.getEducationById);
-
-// POST new qualification
-router.post('/', educationController.addEducation);
-
-// PUT update qualification
-router.put('/:id', educationController.updateEducation);
-
-// DELETE qualification by ID
-router.delete('/:id', educationController.deleteEducation);
-
-// DELETE all qualifications
-router.delete('/', educationController.deleteAllEducations);
+router.post('/', auth.requireSignin, auth.isAdmin, educationController.addEducation);
+router.put('/:id', auth.requireSignin, auth.isAdmin, educationController.updateEducation);
+router.delete('/:id', auth.requireSignin, auth.isAdmin, educationController.deleteEducation);
+router.delete('/', auth.requireSignin, auth.isAdmin, educationController.deleteAllEducations);
 
 module.exports = router;

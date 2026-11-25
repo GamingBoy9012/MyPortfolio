@@ -1,27 +1,15 @@
 const express = require('express');
 const userCtrl = require('../controllers/user');
-const authHelper = require('../helpers/auth');
+const auth = require('../helpers/auth');
 
 const router = express.Router();
 
+router.get('/', auth.requireSignin, auth.isAdmin, userCtrl.list);
+router.post('/', userCtrl.create);
+router.get('/:userId', auth.requireSignin, auth.hasAuthorization, userCtrl.read);
+router.put('/:userId', auth.requireSignin, auth.hasAuthorization, userCtrl.update);
+router.delete('/:userId', auth.requireSignin, auth.hasAuthorization, userCtrl.remove);
+
 router.param('userId', userCtrl.userByID);
-
-router.route('/')
-    .get(userCtrl.list)
-    .post(userCtrl.create)
-    .delete(userCtrl.removeAll);
-
-router.route('/:userId')
-    .get(authHelper.requireSignin, userCtrl.read)
-    .put(
-        authHelper.requireSignin,
-        authHelper.hasAuthorization,
-        userCtrl.update
-    )
-    .delete(
-        authHelper.requireSignin,
-        authHelper.hasAuthorization,
-        userCtrl.remove
-    );
 
 module.exports = router;

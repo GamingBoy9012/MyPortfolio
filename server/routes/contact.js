@@ -1,25 +1,15 @@
-
 const express = require('express');
+const contactController = require('../controllers/contact');
+const auth = require('../helpers/auth');
+
 const router = express.Router();
 
-const contactController = require('../controllers/contact');
-
-// GET all contacts
-router.get('/', contactController.getAllContacts);
-
-// GET contact by ID
-router.get('/:id', contactController.getContactById);
-
-// POST new contact
+// Contact form submissions are public. Only an Admin can manage saved messages.
 router.post('/', contactController.addContact);
-
-// PUT update contact
-router.put('/:id', contactController.updateContact);
-
-// DELETE contact by ID
-router.delete('/:id', contactController.deleteContact);
-
-// DELETE all contacts
-router.delete('/', contactController.deleteAllContacts);
+router.get('/', auth.requireSignin, auth.isAdmin, contactController.getAllContacts);
+router.get('/:id', auth.requireSignin, auth.isAdmin, contactController.getContactById);
+router.put('/:id', auth.requireSignin, auth.isAdmin, contactController.updateContact);
+router.delete('/:id', auth.requireSignin, auth.isAdmin, contactController.deleteContact);
+router.delete('/', auth.requireSignin, auth.isAdmin, contactController.deleteAllContacts);
 
 module.exports = router;
